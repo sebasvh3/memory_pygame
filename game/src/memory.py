@@ -21,8 +21,7 @@ import time
 # -----------
  
 PantX = 740
-#PantY = 710
-PantY = 400
+PantY = 710
 ImgDir = "images"
 
 
@@ -83,15 +82,18 @@ def cargar_menu(cargarAnimacion = False):
             screen.blit(op2x2, (i, y))
             pygame.display.update()
         for i in range(600):
+            screen.blit(op2x2, rec2)
             clock.tick(tick)
             screen.fill((255, 255, 255))
             screen.blit(op4x4, (i, y+100))
             pygame.display.update()
         for i in range(600):
+            screen.blit(op4x4, rec4)
             clock.tick(tick)
             screen.fill((255, 255, 255))
             screen.blit(op6x6, (i, y+200))
             pygame.display.update()
+        cargarAnimacion=False
         
     
     screen.fill((255, 255, 255))
@@ -117,8 +119,7 @@ def cargar_menu(cargarAnimacion = False):
     #  InicioY  --> Indica la coordenada Y de la parte superior izquierda de la pantalla donde se empiezan a pintar los recuadros.
     #  Intentos --> Indica cuantos pares de imagenes puede el jugador destapar en cada modalidad antes de que pierda.
     #  Tupla = (Num,TamImg,Margen,InicioX,InicioY,Intentos).
-#    (4,150,10,130,130,8)
-    return ((rec2,(2,250,10,230,230,2)),(rec4,(4,80,10,130,130,8)),(rec6,(6,100,10,90,90,18)))
+    return ((rec2,(2,250,10,230,230,2)),(rec4,(4,150,10,130,130,8)),(rec6,(6,100,10,90,90,18)))
     
 class Imagen(pygame.sprite.Sprite):
     
@@ -244,12 +245,42 @@ def informacionJuego(numIntentos):
     text = "Concentrese: %d X %d        Intentos: %3d " % (Num,Num, numIntentos)
     mensaje = font.render(text, 1,DARKGRAY)
     screen.blit(mensaje, (15, 5))
+
+   
+def splitIntoGroupsOf(groupSize, theList):
+    result = []
+    for i in range(0, len(theList), groupSize):
+        result.append(theList[i:i+groupSize])
+    return result   
+   
+def vistaRapida():
+    pintar_tablero(Intentos)
+    coordenadaImages = []
+    for x in range(Num):
+        for y in range(Num):
+            coordenadaImages.append( (x, y) )
+    random.shuffle(coordenadaImages)
+    contWait = 1
+    for dirImg in coordenadaImages:
+        x=dirImg[0]
+        y=dirImg[1]
+        oImg = Tablero[x][y]
+        oImg.pintar()
+        if contWait == Num:
+            pygame.display.update()
+            time.sleep(0.7)
+            pintar_tablero(Intentos)
+            pygame.display.update()
+            contWait=1
+        else:
+            contWait+=1
+            
     
  
 def main():
     pygame.init()
     # Num = 2,4,6
-    global Num,TamImg,Margen,InicioX,InicioY,Tablero
+    global Num,TamImg,Margen,InicioX,InicioY,Tablero,Intentos
     # creamos la ventana y le indicamos un titulo:
     global screen
     screen = pygame.display.set_mode((PantX, PantY))
@@ -261,7 +292,7 @@ def main():
     font = pygame.font.Font(None, 20)
     
     #MENU
-    opciones=cargar_menu()
+    opciones=cargar_menu(True)
     Menu=True
     
     mousex = 0
@@ -291,10 +322,11 @@ def main():
             if clicked:
                 for rec in opciones:
                     if rec[0].collidepoint(mousex, mousey):
+                        screen.fill(WHITE)
                         #Se inicializan la variables principales del juego y el tablero de juego
                         Num,TamImg,Margen,InicioX,InicioY,Intentos = rec[1]
                         Tablero=inicializar_tablero(Num)
-                        screen.fill((255, 255, 255))
+                        vistaRapida()
                         Menu=False
                         break
                     
@@ -337,7 +369,7 @@ def main():
                 fuente = pygame.font.Font(None, 30)
                 mensaje = fuente.render(text, 1, WHITE)
                 screen.fill((30, 145, 255))
-                screen.blit(mensaje, (200, 350))
+                screen.blit(mensaje, (300, 350))
                 pygame.display.flip()
                 time.sleep(2)
                 screen.fill(WHITE)
@@ -349,7 +381,7 @@ def main():
                 fuente = pygame.font.Font(None, 30)
                 mensaje = fuente.render(text, 1, BLACK)
                 screen.fill(ORANGE)
-                screen.blit(mensaje, (200, 350))
+                screen.blit(mensaje, (300, 350))
                 pygame.display.flip()
                 time.sleep(2)
                 screen.fill(WHITE)
