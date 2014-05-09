@@ -13,22 +13,18 @@ from pygame.locals import *
 import sys
 import os
 import time
+
+ 
  
 # -----------
 # Constantes
 # -----------
-
  
 PantX = 740
-PantY = 710
+#PantY = 710
+PantY = 400
 ImgDir = "images"
 
-
-
-#TamImg = 100
-#Margen = 10
-#InicioX = 100
-#InicioY = 100
 
 DARKGRAY = (60, 60, 60)
 WHITE = (255, 255, 255)
@@ -39,6 +35,7 @@ YELLOW = (255, 255, 0)
 ORANGE = (255, 128, 0)
 PURPLE = (255, 0, 255)
 CYAN = (0, 255, 255)
+BLACK = (0, 0, 0)
 
 NumeroImagenes = 18
 
@@ -56,7 +53,7 @@ def cargar_imagen(numDog):
     image = image.convert()
     return image
  
-def cargar_menu():
+def cargar_menu(cargarAnimacion = False):
     op2x2=pygame.image.load("images/2x2.jpg")
     op4x4=pygame.image.load("images/4x4.jpg")
     op6x6=pygame.image.load("images/6x6.jpg")
@@ -77,23 +74,24 @@ def cargar_menu():
     y=250
 
     #** Animacion
-#    clock = pygame.time.Clock()
-#    tick=200
-#    for i in range(600):
-#        clock.tick(tick)
-#        screen.fill((255, 255, 255))
-#        screen.blit(op2x2, (i, y))
-#        pygame.display.update()
-#    for i in range(600):
-#        clock.tick(tick)
-#        screen.fill((255, 255, 255))
-#        screen.blit(op4x4, (i, y+100))
-#        pygame.display.update()
-#    for i in range(600):
-#        clock.tick(tick)
-#        screen.fill((255, 255, 255))
-#        screen.blit(op6x6, (i, y+200))
-#        pygame.display.update()
+    if(cargarAnimacion):
+        clock = pygame.time.Clock()
+        tick=200
+        for i in range(600):
+            clock.tick(tick)
+            screen.fill((255, 255, 255))
+            screen.blit(op2x2, (i, y))
+            pygame.display.update()
+        for i in range(600):
+            clock.tick(tick)
+            screen.fill((255, 255, 255))
+            screen.blit(op4x4, (i, y+100))
+            pygame.display.update()
+        for i in range(600):
+            clock.tick(tick)
+            screen.fill((255, 255, 255))
+            screen.blit(op6x6, (i, y+200))
+            pygame.display.update()
         
     
     screen.fill((255, 255, 255))
@@ -110,7 +108,17 @@ def cargar_menu():
     screen.blit(op4x4, rec4)
     screen.blit(op6x6, rec6)
     
-    return ((rec2,(2,250,10,230,230)),(rec4,(4,150,10,130,130)),(rec6,(6,100,10,90,90)))
+    # Se retorna un objeto pygame.Rec para el manejo de coordenas junto con toda la configuracion
+    # requerida en cada tipo de juego dentro de una tupla.
+    #  Num      --> Indica la modalidad del juego. (Ej: Num=2 indica un cuadro de 2x2).
+    #  TamImg   --> Indica que tamaños en pixeles llevaran cada imagen del juego (Ej: TamImg=200 indica imagenes de 200x200 pixeles).
+    #  Margen   --> Indica la separacion en pixeles entre las imagenes.
+    #  InicioX  --> Indica la coordenada X de la parte superior izquierda de la pantalla donde se empiezan a pintar los recuadros.
+    #  InicioY  --> Indica la coordenada Y de la parte superior izquierda de la pantalla donde se empiezan a pintar los recuadros.
+    #  Intentos --> Indica cuantos pares de imagenes puede el jugador destapar en cada modalidad antes de que pierda.
+    #  Tupla = (Num,TamImg,Margen,InicioX,InicioY,Intentos).
+#    (4,150,10,130,130,8)
+    return ((rec2,(2,250,10,230,230,2)),(rec4,(4,80,10,130,130,8)),(rec6,(6,100,10,90,90,18)))
     
 class Imagen(pygame.sprite.Sprite):
     
@@ -155,11 +163,6 @@ class Imagen(pygame.sprite.Sprite):
         self.noSelect = True
         self.isOculta = True
         
-
-        
-        
-#    def mostrar(self):
-#    if self.oculta:
         
 def inicializar_tablero(tam):
     # tam=2 , 4 , 6
@@ -192,6 +195,15 @@ def inicializar_tablero(tam):
         x=InicioX
     return tablero
 
+# Resalta las opcion del menu principal (2x2 4x4 6x6)
+def isOverOptions(x,y,opciones):
+    for op in opciones:
+        if op[0].collidepoint(x,y):
+            pygame.draw.rect(screen, BLUE, op[0], 3)
+            pygame.display.update()
+            break;
+
+# Resalta los recuadros del juego
 def isOverBox(x, y):
     for i in range(Num):
         for j in range(Num):
@@ -212,11 +224,13 @@ def getImagenClick(x,y):
                     return None
     return None
 
-def pintar_tablero():
+def pintar_tablero(numIntentos):
+    screen.fill(WHITE)
     for i in range(Num):
         for j in range(Num):
             oImg = Tablero[i][j]
             oImg.mostrar()
+    informacionJuego(numIntentos)
 
 def hayGanador():
     for i in range(Num):
@@ -225,6 +239,12 @@ def hayGanador():
             if oImg.isOculta:
                 return False
     return True
+
+def informacionJuego(numIntentos):
+    text = "Concentrese: %d X %d        Intentos: %3d " % (Num,Num, numIntentos)
+    mensaje = font.render(text, 1,DARKGRAY)
+    screen.blit(mensaje, (15, 5))
+    
  
 def main():
     pygame.init()
@@ -235,34 +255,11 @@ def main():
     screen = pygame.display.set_mode((PantX, PantY))
     pygame.display.set_caption("Concentrese!")
     screen.fill((255, 255, 255))
- 
-   
-    # se muestran lo cambios en pantalla
-#    Num = 2
-#    TamImg = 250
-#    Margen = 10
-#    InicioX = 230
-#    InicioY = 230
     
-#    Num = 4
-#    TamImg = 150
-#    Margen = 10
-#    InicioX = 130
-#    InicioY = 130
-##    
-#    Num = 6
-#    TamImg = 100
-#    Margen = 10
-#    InicioX = 90
-#    InicioY = 90
+    #Se define el tipo de letra
+    global font
+    font = pygame.font.Font(None, 20)
     
-    
- 
-#    Tablero=inicializar_tablero(Num)
-#    pygame.display.flip()
-    
-    
-    # el bucle principal del juego
     #MENU
     opciones=cargar_menu()
     Menu=True
@@ -271,6 +268,7 @@ def main():
     mousey = 0
     firstClick = True
     img_click1 = None
+    #Bucle principal del juego
     while True:
         clicked = False
         
@@ -278,27 +276,31 @@ def main():
         #inicializar_tablero(Num)
         
         if Menu:
-#            cargar_menu()
             pygame.display.flip()
+            cargar_menu()
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     pygame.quit()
                     sys.exit()
+                if event.type == MOUSEMOTION:
+                    mousex, mousey = event.pos
                 if event.type == MOUSEBUTTONUP:
                     mousex, mousey = event.pos
                     clicked = True
+            isOverOptions(mousex,mousey,opciones)
             if clicked:
                 for rec in opciones:
                     if rec[0].collidepoint(mousex, mousey):
-                        Num,TamImg,Margen,InicioX,InicioY = rec[1]
-                        Menu=False
+                        #Se inicializan la variables principales del juego y el tablero de juego
+                        Num,TamImg,Margen,InicioX,InicioY,Intentos = rec[1]
                         Tablero=inicializar_tablero(Num)
                         screen.fill((255, 255, 255))
+                        Menu=False
                         break
                     
                 print("Tablero")
         else:
-            pintar_tablero()
+            pintar_tablero(Intentos)
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     pygame.quit()
@@ -324,22 +326,36 @@ def main():
                             print("iguales")
                         else:
                             print("diferentes")
+                            #Se decrementa el numero de intentos
+                            Intentos-=1
+                            print("Intentos",Intentos)
                             img_click1.ocultarAnterior()
                             img.ocultarAnterior()
                         firstClick = True
             if hayGanador():
-                text = "GANASTE!!!"
+                text = "GANASTE..."
                 fuente = pygame.font.Font(None, 30)
-                mensaje = fuente.render(text, 1, (255, 255, 255))
+                mensaje = fuente.render(text, 1, WHITE)
                 screen.fill((30, 145, 255))
-                screen.blit(mensaje, (100, 350))
+                screen.blit(mensaje, (200, 350))
                 pygame.display.flip()
-                time.sleep(3)
-                screen.fill((255, 255, 255))
+                time.sleep(2)
+                screen.fill(WHITE)
                 opciones=cargar_menu()
                 Menu=True
-                print("GANASTE!!")
-            
+                print(text)
+            elif(Intentos == 0):
+                text = "PERDISTE..."
+                fuente = pygame.font.Font(None, 30)
+                mensaje = fuente.render(text, 1, BLACK)
+                screen.fill(ORANGE)
+                screen.blit(mensaje, (200, 350))
+                pygame.display.flip()
+                time.sleep(2)
+                screen.fill(WHITE)
+                opciones=cargar_menu()
+                Menu=True
+                print(text)
             
  
 if __name__ == "__main__":
