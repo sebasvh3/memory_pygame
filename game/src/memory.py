@@ -279,21 +279,56 @@ def main():
     screen = pygame.display.set_mode((PantX, PantY))
     pygame.display.set_caption("Concentrese!")
     screen.fill((255, 255, 255))
+ 
+   
+    # se muestran lo cambios en pantalla
+#    Num = 2
+#    TamImg = 250
+#    Margen = 10
+#    InicioX = 230
+#    InicioY = 230
     
-    #Se define el tipo de letra
-    global font
-    font = pygame.font.Font(None, 20)
+#    Num = 4
+#    TamImg = 150
+#    Margen = 10
+#    InicioX = 130
+#    InicioY = 130
+##    
+#    Num = 6
+#    TamImg = 100
+#    Margen = 10
+#    InicioX = 90
+#    InicioY = 90
     
+    
+ 
+#    Tablero=inicializar_tablero(Num)
+#    pygame.display.flip()
+    
+    
+    # el bucle principal del juego
     #MENU
+    opciones=cargar_menu()
+    opciones=cargar_menu(True)
+    #Bucle principal del juego
+#    Num = 6
+#    TamImg = 100
+#    Margen = 10
+#    InicioX = 90
+#    InicioY = 90
+    
+    
+ 
+#    Tablero=inicializar_tablero(Num)
+#    pygame.display.flip()
+    
+    
+    # el bucle principal del juego
+    #MENU
+    opciones=cargar_menu()
 #    opciones=cargar_menu(True)
     opciones=cargar_menu()
-    Menu=True
-    
-    mousex = 0
-    mousey = 0
-    firstClick = True
-    img_click1 = None
-    #Bucle principal del juego
+
     while True:
         clicked = False
         
@@ -322,6 +357,11 @@ def main():
                         Tablero=inicializar_tablero(Num)
                         vistaRapida()
                         Menu=False
+
+
+
+
+
                         break
                     
                 print("Tablero")
@@ -355,6 +395,24 @@ def main():
                             #Se decrementa el numero de intentos
                             Intentos-=1
                             print("Intentos",Intentos)
+            isOverBox(mousex,mousey)
+            if clicked:
+                img=getImagenClick(mousex,mousey)
+                if img is not None:
+                    if firstClick:
+                        img_click1 = img
+                        img_click1.desOcultar()
+                        firstClick = False
+                        print "Desocultar"
+                    else:
+                        img.desOcultar2()
+                        if img_click1.dogNum == img.dogNum:
+                            print("iguales")
+                        else:
+                            print("diferentes")
+
+
+
                             img_click1.ocultarAnterior()
                             img.ocultarAnterior()
                         firstClick = True
@@ -382,6 +440,17 @@ def main():
                 opciones=cargar_menu()
                 Menu=True
                 print(text)
+
+
+
+
+
+
+
+
+
+
+
             
  
 if __name__ == "__main__":
