@@ -244,14 +244,7 @@ def hayGanador():
 def informacionJuego(numIntentos):
     text = "Concentrese: %d X %d        Intentos: %3d " % (Num,Num, numIntentos)
     mensaje = font.render(text, 1,DARKGRAY)
-    screen.blit(mensaje, (15, 5))
-
-   
-def splitIntoGroupsOf(groupSize, theList):
-    result = []
-    for i in range(0, len(theList), groupSize):
-        result.append(theList[i:i+groupSize])
-    return result   
+    screen.blit(mensaje, (15, 5))  
    
 def vistaRapida():
     pintar_tablero(Intentos)
@@ -292,7 +285,8 @@ def main():
     font = pygame.font.Font(None, 20)
     
     #MENU
-    opciones=cargar_menu(True)
+#    opciones=cargar_menu(True)
+    opciones=cargar_menu()
     Menu=True
     
     mousex = 0
